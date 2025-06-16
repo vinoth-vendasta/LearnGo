@@ -1,5 +1,6 @@
 # Basics of Golang
 
+## Data types
 ```go
 bool
 
