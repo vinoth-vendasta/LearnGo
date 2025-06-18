@@ -18,11 +18,10 @@ float32 float64
 
 complex64 complex128
 ```
-## methods
-
+## Methods :
 In Go, a method is just a function with a **receiver** — a special argument that binds the function to a type (usually a struct).
 
-## Interface
+## Interface :
 -- An interface type is defined as a set of method signatures.
 
 **Why Important**
@@ -66,5 +65,91 @@ type Writer interface {
 type ReadWriter interface {
     Reader
     Writer
+}
+```
+
+## Concurreny in Go (eg. capable of handling both)
+ * Let’s consider a person jogging. During his morning jog, let’s say his shoelaces become untied. Now the person stops running, ties his shoelaces and then starts running again. This is a classic example of concurrency
+
+ **parallelism** 
+ * Let’s understand it better with the same jogging example. In this case, let’s assume that the person is jogging and also listening to music on his iPod. In this case, the person is jogging and listening to music at the same time, that is he is doing lots of things at the same time. This is called parallelism.
+
+ ## Go Routines
+ * Goroutines can be thought of as lightweight threads. The cost of creating a Goroutine is tiny when compared to a thread
+
+    **How to start a Goroutine?**
+    - Prefix the function or method call with the keyword go and you will have a new Goroutine running concurrently.
+
+    **properties of goroutines**
+    - When a new Goroutine is started, the goroutine call returns immediately. Unlike functions, the control does not wait for the Goroutine to finish executing. The control returns immediately to the next line of code after the Goroutine call and any return values from the Goroutine are ignored.
+    - The main Goroutine should be running for any other Goroutines to run. If the main Goroutine terminates then the program will be terminated and no other Goroutine will run.
+    
+    * function main() is the "main goroutine" which runs all the goroutines.
+    * If main goroutine terminated, the program will stop the execution
+
+### Go Channels
+* Channels can be thought of as pipes using which Goroutines communicate
+* 
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	var a chan int
+	if a == nil {
+		fmt.Println("channel a is nil, going to define it")
+		a = make(chan int)
+		fmt.Printf("Type of a is %T", a)
+	}
+}
+```
+**Sends and receives are blocking by default if we use Channels**
+* No need for explicit blocking or conditional Statements
+
+```go
+package main
+
+import (
+	"fmt"
+)
+func hello(done chan bool) {
+	fmt.Println("Hello world goroutine")
+	done <- true // sending
+}
+func main() {
+	done := make(chan bool)
+	go hello(done)
+	<-done // receiving
+	fmt.Println("main function")
+}
+```
+### Deadlocks
+* One important factor to consider while using channels is deadlock. If a Goroutine is sending data on a channel, then it is expected that some other Goroutine should be receiving the data. If this does not happen, then the program will panic at runtime with Deadlock.
+
+```console
+fatal error: all goroutines are asleep - deadlock!
+
+goroutine 1 [chan send]:
+main.main()
+	/tmp/sandbox046150166/prog.go:6 +0x50
+```
+
+### Undirectional Channels
+* hat only send or receive data
+```go
+package main
+
+import "fmt"
+
+func sendData(sendch chan<- int) {
+	sendch <- 10
+}
+
+func main() {
+	sendch := make(chan<- int)
+	go sendData(sendch)
+	fmt.Println(<-sendch)
 }
 ```
