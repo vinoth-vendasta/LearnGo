@@ -18,8 +18,10 @@ float32 float64
 
 complex64 complex128
 ```
+***
 ## Methods :
 In Go, a method is just a function with a **receiver** — a special argument that binds the function to a type (usually a struct).
+***
 
 ## Interface :
 -- An interface type is defined as a set of method signatures.
@@ -53,7 +55,7 @@ default:
 ```
 
 ### Interface Composition
--- Interfaces can embed other interfaces.
+- Interfaces can embed other interfaces.
 
 ```golang
 type Reader interface {
@@ -67,7 +69,7 @@ type ReadWriter interface {
     Writer
 }
 ```
-
+***
 ## Concurreny in Go (eg. capable of handling both)
  * Let’s consider a person jogging. During his morning jog, let’s say his shoelaces become untied. Now the person stops running, ties his shoelaces and then starts running again. This is a classic example of concurrency
 
@@ -127,6 +129,23 @@ func main() {
 ```
 ### Deadlocks
 * One important factor to consider while using channels is deadlock. If a Goroutine is sending data on a channel, then it is expected that some other Goroutine should be receiving the data. If this does not happen, then the program will panic at runtime with Deadlock.
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	ch := make(chan string, 2) //capacity 2 {store 2 values without blocking}
+	ch <- "naveen"
+	ch <- "paul"
+	ch <- "steve" //sending to channel 
+	fmt.Println(<-ch)
+	fmt.Println(<-ch)
+	// no receiver for overflow sender
+}
+```
 
 ```console
 fatal error: all goroutines are asleep - deadlock!
@@ -151,5 +170,38 @@ func main() {
 	sendch := make(chan<- int)
 	go sendData(sendch)
 	fmt.Println(<-sendch)
+}
+```
+### WaitGroup
+*  WaitGroup is used to wait for a collection of Goroutines to finish executing
+- When we call Add on the WaitGroup and pass it an int, the WaitGroup’s counter is incremented by the value
+- The Wait() method blocks the Goroutine in which it’s called until the counter becomes zero.
+- The way to decrement the counter is by calling Done() method on the WaitGroup
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+func process(i int, wg *sync.WaitGroup) {
+	fmt.Println("started Goroutine ", i)
+	time.Sleep(2 * time.Second)
+	fmt.Printf("Goroutine %d ended\n", i)
+	wg.Done()
+}
+
+func main() {
+	no := 3
+	var wg sync.WaitGroup
+	for i := 0; i < no; i++ {
+		wg.Add(1)
+		go process(i, &wg)
+	}
+	wg.Wait()
+	fmt.Println("All go routines finished executing")
 }
 ```
