@@ -156,7 +156,7 @@ main.main()
 ```
 
 ### Undirectional Channels
-* hat only send or receive data
+* It only send or receive data
 ```go
 package main
 
